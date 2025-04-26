@@ -5,27 +5,21 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Board {
-	int[][] boardStatus = new int[10][10]; // リバーシ盤
-	final int SPACE = 0, BLACK = 1, WHITE = BLACK * -1, WALL = 9; // マスの状態
+	int[][] boardStatus = new int[10][10];
+	final int SPACE = 0, BLACK = 1, WHITE = BLACK * -1, WALL = 9;
 
-	final int[][] squareValue = {
-			{ 45, -11, 4, -1, -1, 4, -11, 45 },
-			{ -11, -16, 1, -3, -3, -1, -16, -11 },
-			{ 4, -1, 2, -1, -1, 2, -1, 4 },
-			{ -1, -3, -1, 0, 0, -1, -3, -1 },
-			{ -1, -3, -1, 0, 0, -1, -3, -1 },
-			{ 4, -1, 2, -1, -1, 2, -1, 4 },
-			{ -11, -16, 1, -3, -3, -1, -16, -11 },
-			{ 45, -11, 4, -1, -1, 4, -11, 45 }
-	}; // マスの評価値
+	final int[][] squareValue = { { 45, -11, 4, -1, -1, 4, -11, 45 }, { -11, -16, 1, -3, -3, -1, -16, -11 },
+			{ 4, -1, 2, -1, -1, 2, -1, 4 }, { -1, -3, -1, 0, 0, -1, -3, -1 }, { -1, -3, -1, 0, 0, -1, -3, -1 },
+			{ 4, -1, 2, -1, -1, 2, -1, 4 }, { -11, -16, 1, -3, -3, -1, -16, -11 },
+			{ 45, -11, 4, -1, -1, 4, -11, 45 }, };
 
-	char[] squareStatus = { '　', '●', '○' }; // 表示されるマスの状態
+	char[] squareStatus = { '　', '●', '○' };
 
-	int y, x, nextY, nextX, furtherY, furtherX, previousY, previousX; // マスを調べる
-	List<int[]> validSquares = new ArrayList<int[]>(); // 打てるマスの一覧
-	int[] coordinate = new int[2]; // マスの座標
+	int y, x, nextY, nextX, furtherY, furtherX, previousY, previousX;
+	List<int[]> validSquares = new ArrayList<int[]>();
+	int[] coordinate = new int[2];
 
-	int[] stoneCount = new int[2]; // 石の数
+	int[] stoneCount = new int[2];
 
 	Board() {
 		for (y = 0; y < boardStatus.length; y++) {
@@ -65,7 +59,7 @@ public class Board {
 
 		System.out.println(" +ー+ー+ー+ー+ー+ー+ー+ー+");
 
-		return;
+		countStones();
 	}
 
 	void countStones() {
@@ -82,7 +76,7 @@ public class Board {
 			}
 		}
 
-		return;
+		System.out.println("黒：" + stoneCount[0] + " 白：" + stoneCount[1]);
 	}
 
 	void checkSquares(int stoneColor) {
@@ -105,9 +99,8 @@ public class Board {
 										coordinate[0] = y;
 										coordinate[1] = x;
 										validSquares.add(Arrays.copyOf(coordinate, 2));
-									} else if (boardStatus[furtherY][furtherX] == (stoneColor * -1)) {
-										continue;
-									} else {
+									} else if (boardStatus[furtherY][furtherX] == SPACE
+											|| boardStatus[furtherY][furtherX] == WALL) {
 										break;
 									}
 								}
@@ -117,8 +110,6 @@ public class Board {
 				}
 			}
 		}
-
-		return;
 	}
 
 	void reverseStone(int[] moveSquare, int stoneColor) {
@@ -136,24 +127,18 @@ public class Board {
 							previousY = furtherY;
 							previousX = furtherX;
 
-							while (previousY != moveSquare[0] || previousX != moveSquare[1]) {
+							do {
 								previousY += (nextY * -1);
 								previousX += (nextX * -1);
-
 								boardStatus[previousY][previousX] = stoneColor;
-							}
-						} else if (boardStatus[furtherY][furtherX] == (stoneColor * -1)) {
-							continue;
-						} else {
+							} while (previousY != moveSquare[0] || previousX != moveSquare[1]);
+						} else if (boardStatus[furtherY][furtherX] == SPACE
+								|| boardStatus[furtherY][furtherX] == WALL) {
 							break;
 						}
 					}
 				}
 			}
 		}
-
-		boardStatus[moveSquare[0]][moveSquare[1]] = stoneColor;
-
-		return;
 	}
 }
