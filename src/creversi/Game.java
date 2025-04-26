@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 
 public class Game {
+	int i;
 	int playerStone, enemyStone;
 
 	int enemyLevel;
@@ -22,10 +23,10 @@ public class Game {
 
 	boolean isThinking;
 
-	int inputNumber;
+	int choice;
 	BufferedReader playerInput = new BufferedReader(new InputStreamReader(System.in));
 
-	Board board;
+	Board board = new Board();
 
 	final int WIN = 1, LOSE = -1, DRAW = 0;
 
@@ -34,9 +35,9 @@ public class Game {
 
 		do {
 			System.out.println("石の色を選んで下さい。");
-			System.out.print("黒（先手）：1、白（後手）：-1>");
+			System.out.print("黒（先手）：" + board.BLACK + "、白（後手）：" + board.WHITE + ">");
 			playerStone = inputNumber();
-		} while (playerStone != 1 && playerStone != -1);
+		} while (playerStone != board.BLACK && playerStone != board.WHITE);
 
 		enemyStone = playerStone * -1;
 
@@ -51,7 +52,7 @@ public class Game {
 
 	int playGame() throws IOException {
 		System.out.println("対局開始");
-		board = new Board();
+		board.resetBoard();
 
 		currentTurn = 1;
 		turns = 0;
@@ -61,7 +62,7 @@ public class Game {
 			board.drawBoard();
 			board.checkSquares(currentTurn);
 
-			if (board.validSquares.size() > 0) {
+			if (board.movable.size() > 0) {
 				passCount = 0;
 
 				if (currentTurn == playerStone) {
@@ -71,7 +72,7 @@ public class Game {
 					System.out.println("投了（降参）したい場合は-1を入力して下さい。");
 
 					do {
-						for (int i = 0; i < moveSquare.length; i++) {
+						for (i = 0; i < moveSquare.length; i++) {
 							do {
 								if (i == 0) {
 									System.out.print("行（Y座標）>");
@@ -82,7 +83,7 @@ public class Game {
 								moveSquare[i] = inputNumber();
 
 								if (moveSquare[i] == -1) {
-									System.out.print("本当に投了しますか?\nYES：1、NO：-1>");
+									System.out.print("投了しますか?\nYES：1、NO：-1>");
 
 									if (inputNumber() == 1) {
 										return LOSE;
@@ -93,8 +94,8 @@ public class Game {
 							} while (moveSquare[i] < 1 || moveSquare[i] > 8);
 						}
 
-						for (int i = 0; i < board.validSquares.size(); i++) {
-							if (Arrays.equals(moveSquare, board.validSquares.get(i))) {
+						for (i = 0; i < board.movable.size(); i++) {
+							if (Arrays.equals(moveSquare, board.movable.get(i))) {
 								board.reverseStone(moveSquare, playerStone);
 								isThinking = false;
 								break;
@@ -121,7 +122,7 @@ public class Game {
 					}
 				}
 
-				for (int i = 0; i < moveSquare.length; i++) {
+				for (i = 0; i < moveSquare.length; i++) {
 					moveSquare[i] = 0;
 				}
 
@@ -142,16 +143,17 @@ public class Game {
 	}
 
 	void level1() {
-		moveSquare = board.validSquares.get((int) (Math.random() * board.validSquares.size()));
+		moveSquare = board.movable.get((int) (Math.random() * board.movable.size()));
 		board.reverseStone(moveSquare, enemyStone);
 	}
 
 	void level2() {
 		maxValue = -9999;
 
-		for (int i = 0; i < board.validSquares.size(); i++) {
-			moveSquare = (board.squareValue[board.validSquares.get(i)[0] - 1][board.validSquares.get(i)[1]
-					- 1] > maxValue) ? moveSquare = Arrays.copyOf(board.validSquares.get(i), 2) : moveSquare;
+		for (i = 0; i < board.movable.size(); i++) {
+			moveSquare = (board.value[board.movable.get(i)[0] - 1][board.movable.get(i)[1] - 1] > maxValue)
+					? moveSquare = Arrays.copyOf(board.movable.get(i), 2)
+					: moveSquare;
 		}
 
 		board.reverseStone(moveSquare, enemyStone);
@@ -159,32 +161,27 @@ public class Game {
 
 	int gameOver() {
 		System.out.println("終局");
-
 		board.drawBoard();
 
-		if (board.stoneCount[0] > board.stoneCount[1] && playerStone == board.BLACK) {
-			return WIN;
-		} else if (board.stoneCount[0] > board.stoneCount[1] && playerStone == board.WHITE) {
-			return LOSE;
-		} else if (board.stoneCount[0] < board.stoneCount[1] && playerStone == board.BLACK) {
-			return LOSE;
-		} else if (board.stoneCount[0] < board.stoneCount[1] && playerStone == board.WHITE) {
-			return WIN;
+		if (board.blackCount > board.whiteCount) {
+			return (playerStone == board.BLACK ? WIN : LOSE);
+		} else if (board.blackCount < board.whiteCount) {
+			return (playerStone == board.WHITE ? WIN : LOSE);
 		} else {
 			return DRAW;
 		}
 	}
 
 	int inputNumber() throws IOException {
-		inputNumber = 0;
+		choice = 0;
 
 		try {
-			inputNumber = Integer.parseInt(playerInput.readLine());
+			choice = Integer.parseInt(playerInput.readLine());
 		} catch (NumberFormatException e) {
 			// TODO: handle exception
 			System.out.println("数値を入力して下さい。");
 		}
 
-		return inputNumber;
+		return choice;
 	}
 }
