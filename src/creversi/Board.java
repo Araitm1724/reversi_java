@@ -124,8 +124,8 @@ public class Board {
 							previousX = furtherX;
 
 							do {
-								previousY += (nextY * -1);
-								previousX += (nextX * -1);
+								previousY += nextY * -1;
+								previousX += nextX * -1;
 								boardStatus[previousY][previousX] = currentTurn;
 							} while (previousY != moveSquare[0] || previousX != moveSquare[1]);
 						} else if (boardStatus[furtherY][furtherX] == SPACE

@@ -129,9 +129,12 @@ public class Game {
 	}
 
 	int[] level2() {
+		maxValue = 0;
+
 		for (i = 1; i < board.movable.size(); i++) {
 			maxValue = (board.value[board.movable.get(i)[0] - 1][board.movable.get(i)[1]
-					- 1] > board.value[board.movable.get(i - 1)[0] - 1][board.movable.get(i - 1)[1] - 1]) ? i : (i - 1);
+					- 1] > board.value[board.movable.get(maxValue)[0] - 1][board.movable.get(maxValue)[1] - 1]) ? i
+							: maxValue;
 		}
 
 		return board.movable.get(maxValue);
