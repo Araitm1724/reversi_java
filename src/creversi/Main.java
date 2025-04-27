@@ -26,9 +26,7 @@ public class Main {
 				retry = game.inputNumber();
 			} while (retry != 1 && retry != -1);
 
-			if (retry == -1) {
-				isPlay = false;
-			}
+			isPlay = (retry == 1) ? true : false;
 		}
 
 		System.out.println("終了します。ありがとうございました。");

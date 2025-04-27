@@ -67,6 +67,7 @@ public class Game {
 
 				if (currentTurn == playerStone) {
 					isThinking = true;
+
 					System.out.println("貴方の番です。");
 					System.out.println("打ちたいマスの座標を順番に入力して下さい。");
 					System.out.println("投了（降参）したい場合は-1を入力して下さい。");
@@ -74,12 +75,7 @@ public class Game {
 					do {
 						for (i = 0; i < moveSquare.length; i++) {
 							do {
-								if (i == 0) {
-									System.out.print("行（Y座標）>");
-								} else {
-									System.out.print("列（X座標）>");
-								}
-
+								System.out.print((i == 0) ? "行（Y座標）>" : "列（X座標）>");
 								moveSquare[i] = inputNumber();
 
 								if (moveSquare[i] == -1) {
@@ -108,32 +104,18 @@ public class Game {
 					} while (isThinking);
 				} else {
 					System.out.println("相手の番です。");
+					board.reverseStone((enemyLevel == 1) ? level1() : level2(), enemyStone);
 
 					try {
 						Thread.sleep(2000);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-
-					if (enemyLevel == 1) {
-						level1();
-					} else {
-						level2();
-					}
-				}
-
-				for (i = 0; i < moveSquare.length; i++) {
-					moveSquare[i] = 0;
 				}
 
 				turns++;
 			} else {
-				System.out.println("打てる手が無いのでパスします。");
-				passCount++;
-
-				if (passCount >= 2) {
-					System.out.println("お互いに打てる手が無くなりました。");
-				}
+				System.out.println((++passCount < 2) ? "打てる手が無いのでパスします。" : "お互いに打てる手が無くなりました。");
 			}
 
 			currentTurn *= -1;
@@ -142,21 +124,17 @@ public class Game {
 		return gameOver();
 	}
 
-	void level1() {
-		moveSquare = board.movable.get((int) (Math.random() * board.movable.size()));
-		board.reverseStone(moveSquare, enemyStone);
+	int[] level1() {
+		return board.movable.get((int) (Math.random() * board.movable.size()));
 	}
 
-	void level2() {
-		maxValue = -9999;
-
-		for (i = 0; i < board.movable.size(); i++) {
-			moveSquare = (board.value[board.movable.get(i)[0] - 1][board.movable.get(i)[1] - 1] > maxValue)
-					? moveSquare = Arrays.copyOf(board.movable.get(i), 2)
-					: moveSquare;
+	int[] level2() {
+		for (i = 1; i < board.movable.size(); i++) {
+			maxValue = (board.value[board.movable.get(i)[0] - 1][board.movable.get(i)[1]
+					- 1] > board.value[board.movable.get(i - 1)[0] - 1][board.movable.get(i - 1)[1] - 1]) ? i : (i - 1);
 		}
 
-		board.reverseStone(moveSquare, enemyStone);
+		return board.movable.get(maxValue);
 	}
 
 	int gameOver() {
