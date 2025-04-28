@@ -4,13 +4,13 @@ import java.io.IOException;
 
 public class Main {
 	public static void main(String[] args) throws IOException {
-		boolean isPlay;
 		int outcome, retry;
 
 		Game game = new Game();
-		isPlay = game.start();
+		System.out.println("ようこそ\nここではリバーシをプレイできます。");
 
-		while (isPlay) {
+		do {
+			game.start();
 			outcome = game.playGame();
 
 			if (outcome == game.WIN) {
@@ -25,10 +25,8 @@ public class Main {
 				System.out.print("もう一局打ちますか?\nYES：1、NO：-1>");
 				retry = game.inputNumber();
 			} while (retry != 1 && retry != -1);
+		} while (retry == 1);
 
-			isPlay = (retry == 1) ? true : false;
-		}
-
-		System.out.println("終了します。ありがとうございました。");
+		System.out.println("終了します。");
 	}
 }
