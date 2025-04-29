@@ -131,7 +131,7 @@ public class Board {
 	/**
 	 * 石を反転させる
 	 * 
-	 * @param moveSquare 石を打ったマスの座標
+	 * @param moveSquare  石を打ったマスの座標
 	 * @param currentTurn 現在の手番（石の色）
 	 */
 	void reverseStone(int[] moveSquare, int currentTurn) {
@@ -155,6 +155,8 @@ public class Board {
 
 								boardStatus[previousY][previousX] = currentTurn;
 							} while (previousY != moveSquare[0] || previousX != moveSquare[1]);
+
+							break;
 						} else if (boardStatus[furtherY][furtherX] == SPACE
 								|| boardStatus[furtherY][furtherX] == WALL) { // 空白マスか壁に当たればその方向はハズレ
 							break;
