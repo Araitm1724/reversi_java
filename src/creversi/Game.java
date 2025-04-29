@@ -79,7 +79,7 @@ public class Game {
 
 					isThinking = true;
 
-					do { // 
+					do { //
 						for (loop = 0; loop < moveSquare.length; loop++) { // Y座標とX座標の2回入力させる
 							do {
 								System.out.print((loop == 0) ? "行（Y座標）>" : "列（X座標）>");
@@ -171,7 +171,7 @@ public class Game {
 			return (playerStone == board.BLACK ? WIN : LOSE);
 		} else if (board.blackCount < board.whiteCount) { // 白の方が多く、プレイヤーが白なら勝ち、黒なら負け
 			return (playerStone == board.WHITE ? WIN : LOSE);
-		} else { //白黒同数なら引き分け
+		} else { // 白黒同数なら引き分け
 			return DRAW;
 		}
 	}
