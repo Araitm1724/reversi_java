@@ -13,12 +13,11 @@ public class Main {
 			game.start();
 			outcome = game.playGame();
 
-			if (outcome == game.WIN) {
-				System.out.println("貴方の勝ち");
-			} else if (outcome == game.LOSE) {
-				System.out.println("貴方の負け");
-			} else {
-				System.out.println("引き分け");
+			switch (outcome) {
+			case Game.WIN -> System.out.println("貴方の勝ち");
+			case Game.LOSE -> System.out.println("貴方の負け");
+			case Game.DRAW -> System.out.println("引き分け");
+			default -> throw new IllegalArgumentException("Unexpected value: " + outcome);
 			}
 
 			do {

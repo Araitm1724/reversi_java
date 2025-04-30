@@ -3,32 +3,36 @@ package creversi;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class Game {
-	int loop;
-	int playerStone, enemyStone;
+	private int loop;
+	private int playerStone, enemyStone;
 
-	int enemyLevel;
+	private int enemyLevel;
 
-	int currentTurn; // 現在の手番（石の色）
+	private int currentTurn; // 現在の手番（石の色）
 
-	int turns; // 総手数
+	private int turns; // 総手数
 
-	int[] moveSquare = new int[2]; // プレイヤーが打った（入力した）マスの座標
+	private List<int[]> movable = new ArrayList<int[]>(); // 着手可能なマスの一覧
 
-	int passCount; // どこにも打てないときに加算する（2以上になったら終局）
+	private int[] moveSquare = new int[2]; // プレイヤーが打った（入力した）マスの座標
 
-	int maxValue; // 最も評価値の高い有効マスの座標（COMレベル2が使用）
+	private int passCount; // どこにも打てないときに加算する（2以上になったら終局）
 
-	boolean isThinking; // プレイヤーの入力中
+	private int maxValue; // 最も評価値の高い有効マスの座標（COMレベル2が使用）
+
+	private boolean isThinking; // プレイヤーの入力中
+
+	private Board board;
+
+	public static final int WIN = 1, LOSE = -1, DRAW = 0;
 
 	BufferedReader playerInput = new BufferedReader(new InputStreamReader(System.in));
 	int choice; // プレイヤーが入力した値
-
-	Board board = new Board();
-
-	final int WIN = 1, LOSE = -1, DRAW = 0;
 
 	/**
 	 * 対局設定の選択
@@ -38,9 +42,9 @@ public class Game {
 	void start() throws IOException {
 		do {
 			System.out.println("石の色を選んで下さい。");
-			System.out.print("黒（先手）：" + board.BLACK + "、白（後手）：" + board.WHITE + ">");
+			System.out.print("黒（先手）：" + Board.BLACK + "、白（後手）：" + Board.WHITE + ">");
 			playerStone = inputNumber();
-		} while (playerStone != board.BLACK && playerStone != board.WHITE);
+		} while (playerStone != Board.BLACK && playerStone != Board.WHITE);
 
 		enemyStone = playerStone * -1;
 
@@ -60,7 +64,7 @@ public class Game {
 	int playGame() throws IOException {
 		System.out.println("対局開始");
 
-		board.resetBoard();
+		board = new Board();
 		currentTurn = 1;
 		turns = 0;
 		passCount = 0;
@@ -68,8 +72,9 @@ public class Game {
 		while (turns < 60 && passCount < 2) { // 打てるマスが無くなるまで対局を続ける
 			board.drawBoard();
 			board.checkSquares(currentTurn);
+			movable = board.getMovable();
 
-			if (board.movable.size() > 0) { // 打てるマスがあれば手番を回す
+			if (movable.size() > 0) { // 打てるマスがあれば手番を回す
 				passCount = 0; // 連続パス回数をリセット
 
 				if (currentTurn == playerStone) {
@@ -97,8 +102,8 @@ public class Game {
 							} while (moveSquare[loop] < 1 || moveSquare[loop] > 8);
 						}
 
-						for (loop = 0; loop < board.movable.size(); loop++) { // 有効マスに入力したマスが含まれているか
-							if (Arrays.equals(moveSquare, board.movable.get(loop))) {
+						for (loop = 0; loop < movable.size(); loop++) { // 有効マスに入力したマスが含まれているか
+							if (Arrays.equals(moveSquare, movable.get(loop))) {
 								board.reverseStone(moveSquare, playerStone); // 石を打って手番終了
 								isThinking = false;
 								break;
@@ -137,7 +142,7 @@ public class Game {
 	 * @return 石を打つマスの座標
 	 */
 	int[] level1() { // 有効マスの中からランダムに打つ
-		return board.movable.get((int) (Math.random() * board.movable.size()));
+		return movable.get((int) (Math.random() * movable.size()));
 	}
 
 	/**
@@ -148,14 +153,14 @@ public class Game {
 	int[] level2() {
 		maxValue = 0; // 最も評価値の高い有効マスの座標（まず1番目を代入）
 
-		for (loop = 1; loop < board.movable.size(); loop++) { // 2番目から繰り返し始める
-			if (board.value[board.movable.get(loop)[0] - 1][board.movable.get(loop)[1]
-					- 1] > board.value[board.movable.get(maxValue)[0] - 1][board.movable.get(maxValue)[1] - 1]) {
+		for (loop = 1; loop < movable.size(); loop++) { // 2番目から繰り返し始める
+			if (Board.VALUE[movable.get(loop)[0] - 1][movable.get(loop)[1]
+					- 1] > Board.VALUE[movable.get(maxValue)[0] - 1][movable.get(maxValue)[1] - 1]) {
 				maxValue = loop; // 現在のマスが前のマスより評価値が高ければ更新
 			}
 		}
 
-		return board.movable.get(maxValue);
+		return movable.get(maxValue);
 	}
 
 	/**
@@ -167,10 +172,10 @@ public class Game {
 		System.out.println("終局");
 		board.drawBoard();
 
-		if (board.blackCount > board.whiteCount) { // 黒の方が多く、プレイヤーが黒なら勝ち、白なら負け
-			return (playerStone == board.BLACK ? WIN : LOSE);
-		} else if (board.blackCount < board.whiteCount) { // 白の方が多く、プレイヤーが白なら勝ち、黒なら負け
-			return (playerStone == board.WHITE ? WIN : LOSE);
+		if (board.getBlackCount() > board.getWhiteCount()) { // 黒の方が多く、プレイヤーが黒なら勝ち、白なら負け
+			return (playerStone == Board.BLACK ? WIN : LOSE);
+		} else if (board.getBlackCount() < board.getWhiteCount()) { // 白の方が多く、プレイヤーが白なら勝ち、黒なら負け
+			return (playerStone == Board.WHITE ? WIN : LOSE);
 		} else { // 白黒同数なら引き分け
 			return DRAW;
 		}
