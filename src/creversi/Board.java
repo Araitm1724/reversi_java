@@ -8,39 +8,73 @@ import java.util.List;
  * リバーシ盤クラス
  */
 public class Board {
-	int[][] boardStatus = new int[10][10]; // 盤の状態（外側（[0]と[9]）は番兵）
+	private int[][] boardStatus = new int[10][10]; // 盤の状態（外側（[0]と[9]）は番兵）
 
-	final int BLACK = 1, WHITE = BLACK * -1, SPACE = 0, WALL = 9; // マスの状態を表す
+	public static final int BLACK = 1, WHITE = BLACK * -1, SPACE = 0, WALL = 9; // マスの状態を表す
 
-	char[] squareStatus = { '　', '●', '○' }; // 盤の状態（マスの描画に使用）
+	private char[] squareStatus = { '　', '●', '○' }; // 盤の状態（マスの描画に使用）
 
-	final int[][] value = { { 45, -11, 4, -1, -1, 4, -11, 45 }, { -11, -16, 1, -3, -3, -1, -16, -11 },
-			{ 4, -1, 2, -1, -1, 2, -1, 4 }, { -1, -3, -1, 0, 0, -1, -3, -1 }, { -1, -3, -1, 0, 0, -1, -3, -1 },
-			{ 4, -1, 2, -1, -1, 2, -1, 4 }, { -11, -16, 1, -3, -3, -1, -16, -11 },
-			{ 45, -11, 4, -1, -1, 4, -11, 45 }, }; // マスの評価値（COMレベル2が使用）
+	public static final int[][] VALUE = {
+			{ 45, -11, 4, -1, -1, 4, -11, 45 },
+			{ -11, -16, 1, -3, -3, -1, -16, -11 },
+			{ 4, -1, 2, -1, -1, 2, -1, 4 },
+			{ -1, -3, -1, 0, 0, -1, -3, -1 },
+			{ -1, -3, -1, 0, 0, -1, -3, -1 },
+			{ 4, -1, 2, -1, -1, 2, -1, 4 },
+			{ -11, -16, 1, -3, -3, -1, -16, -11 },
+			{ 45, -11, 4, -1, -1, 4, -11, 45 }
+	}; // マスの評価値（COMレベル2が使用）
 
-	int blackCount, whiteCount; // それぞれの石の数
+	private int blackCount, whiteCount; // それぞれの石の数
 
-	int y, x, nextY, nextX, furtherY, furtherX, previousY, previousX; // マスを調べる際のループ用
+	private int y, x, nextY, nextX, furtherY, furtherX, previousY, previousX; // マスを調べる際のループ用
 
-	int[] coordinate = new int[2]; // 石を打てるマスの座標
+	private int[] coordinate = new int[2]; // 石を打てるマスの座標
 
-	List<int[]> movable = new ArrayList<int[]>(); // 石を打てるマスの座標一覧
+	private List<int[]> movable = new ArrayList<int[]>(); // 石を打てるマスの座標一覧
 
-	/**
-	 * 対局開始時に盤の状態をリセットする
-	 */
-	void resetBoard() {
+	Board() {
 		for (y = 0; y < boardStatus.length; y++) { // 外側を壁（番兵）、それ以外を全て空白にする
 			for (x = 0; x < boardStatus[0].length; x++) {
 				boardStatus[y][x] = (y == 0 || x == 0 || y == 10 || x == 10) ? WALL : SPACE;
 			}
 		}
 
-		boardStatus[4][5] = BLACK; // 中央に石を配置
+		//		中央に石を配置
+		boardStatus[4][5] = BLACK;
 		boardStatus[5][4] = BLACK;
 		boardStatus[4][4] = WHITE;
 		boardStatus[5][5] = WHITE;
+
+		blackCount = 2;
+		whiteCount = 2;
+	}
+
+	/**
+	 * 黒石の数を取得
+	 * 
+	 * @return 黒石の数
+	 */
+	public int getBlackCount() {
+		return blackCount;
+	}
+
+	/**
+	 * 白石の数を取得
+	 * 
+	 * @return 白石の数
+	 */
+	public int getWhiteCount() {
+		return whiteCount;
+	}
+
+	/**
+	 * 着手可能なマスの一覧を取得
+	 * 
+	 * @return 着手可能なマスの一覧
+	 */
+	public List<int[]> getMovable() {
+		return movable;
 	}
 
 	/**
