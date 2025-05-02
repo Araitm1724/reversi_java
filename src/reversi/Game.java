@@ -2,7 +2,7 @@ package reversi;
 
 import java.io.IOException;
 
-public abstract class Game implements ReversiData {
+public abstract class Game {
 	protected int loop; // ループ用変数
 	protected int playerStone, enemyStone; // プレイヤーとCOMの石の色
 
@@ -17,6 +17,9 @@ public abstract class Game implements ReversiData {
 	protected int passCount; // どこにも打てないときに加算する（2以上になったら終局）
 
 	protected int maxValue; // 最も評価値の高い有効マスの座標（COMレベル2が使用）
+
+	// 勝敗
+	public static final int WIN = 1, LOSE = -1, DRAW = 0;
 
 	/**
 	 * 対局

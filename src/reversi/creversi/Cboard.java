@@ -22,8 +22,7 @@ public class Cboard extends Board {
 				case SPACE -> System.out.print("|" + squareStatus[0]);
 				case BLACK -> System.out.print("|" + squareStatus[1]);
 				case WHITE -> System.out.print("|" + squareStatus[2]);
-				default -> throw new IllegalArgumentException("Unexpected value: "
-						+ boardStatus[y][x]);
+				default -> throw new IllegalArgumentException("Unexpected value: " + boardStatus[y][x]);
 				}
 			}
 

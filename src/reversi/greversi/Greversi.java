@@ -1,8 +1,6 @@
 package reversi.greversi;
 
-import reversi.ReversiData;
-
-public class Greversi implements ReversiData {
+public class Greversi {
 
 	public static void main(String[] args) {
 		Window window = new Window();

@@ -4,29 +4,39 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class Board implements ReversiData {
-	//	盤の状態（外側（[0]と[9]）は番兵）
+public abstract class Board {
+	// 盤の状態（外側（[0]と[9]）は番兵）
 	protected int[][] boardStatus = new int[10][10];
 
-	protected int blackCount, whiteCount; // それぞれの石の数
+	// それぞれの石の数
+	protected int blackCount, whiteCount;
 
-	//	マスを調べる際のループ用変数
+	// マスを調べる際のループ用変数
 	protected int y, x, nextY, nextX, furtherY, furtherX, previousY, previousX;
 
-	protected int[] coordinate = new int[2]; // 石を打てるマスの座標
+	// 石を打てるマスの座標
+	protected int[] coordinate = new int[2];
 
-	protected List<int[]> movable = new ArrayList<int[]>(); // 石を打てるマスの座標一覧
+	// 石を打てるマスの座標一覧
+	protected List<int[]> movable = new ArrayList<int[]>();
 
+	// マスの状態を表す
+	public static final int BLACK = 1, WHITE = BLACK * -1, SPACE = 0, WALL = 9;
+
+	// マスの評価値（COMレベル2が使用）
+	public static final int[][] VALUE = { { 45, -11, 4, -1, -1, 4, -11, 45 }, { -11, -16, 1, -3, -3, -1, -16, -11 },
+			{ 4, -1, 2, -1, -1, 2, -1, 4 }, { -1, -3, -1, 0, 0, -1, -3, -1 }, { -1, -3, -1, 0, 0, -1, -3, -1 },
+			{ 4, -1, 2, -1, -1, 2, -1, 4 }, { -11, -16, 1, -3, -3, -1, -16, -11 }, { 45, -11, 4, -1, -1, 4, -11, 45 } };
+
+	// 外側を壁（番兵）、それ以外を全て空白にする
 	protected Board() {
-		for (y = 0; y < boardStatus.length; y++) { // 外側を壁（番兵）、それ以外を全て空白にする
+		for (y = 0; y < boardStatus.length; y++) {
 			for (x = 0; x < boardStatus[0].length; x++) {
-				boardStatus[y][x] = (y == 0 || x == 0 || y == 10 || x == 10)
-						? WALL
-						: SPACE;
+				boardStatus[y][x] = (y == 0 || x == 0 || y == 10 || x == 10) ? WALL : SPACE;
 			}
 		}
 
-		//		中央に石を配置
+		// 中央に石を配置
 		boardStatus[4][5] = BLACK;
 		boardStatus[5][4] = BLACK;
 		boardStatus[4][4] = WHITE;
@@ -96,7 +106,8 @@ public abstract class Board implements ReversiData {
 
 		for (y = 1; y <= 8; y++) {
 			for (x = 1; x <= 8; x++) {
-				if (boardStatus[y][x] == SPACE) { // 空白マスを探す
+				// 空白マスを探す
+				if (boardStatus[y][x] == SPACE) {
 					for (nextY = -1; nextY <= 1; nextY++) {
 						for (nextX = -1; nextX <= 1; nextX++) {
 							// 空白マスの隣が相手の石か調べる
@@ -104,8 +115,8 @@ public abstract class Board implements ReversiData {
 								furtherY = (y + nextY);
 								furtherX = (x + nextX);
 
-								while (true) { // 相手の石の更に先を調べる
-									// 同じ方向の更に先に進む
+								while (true) {
+									// 相手の石の更に先を調べる
 									furtherY += nextY;
 									furtherX += nextX;
 
@@ -114,8 +125,9 @@ public abstract class Board implements ReversiData {
 										// 起点の空白マスを有効マスとして登録
 										coordinate[0] = y;
 										coordinate[1] = x;
-										movable.add(Arrays.copyOf(coordinate,
-												coordinate.length));
+										movable.add(Arrays.copyOf(coordinate, coordinate.length));
+
+										break;
 									} else if (boardStatus[furtherY][furtherX] == SPACE
 											|| boardStatus[furtherY][furtherX] == WALL) {
 										// 空白マスか壁に当たればその方向はハズレ

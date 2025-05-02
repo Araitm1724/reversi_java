@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 
+import reversi.Board;
 import reversi.Game;
 
 public class Cgame extends Game {
@@ -23,15 +24,15 @@ public class Cgame extends Game {
 	void start() throws IOException {
 		do {
 			System.out.println("石の色を選んで下さい。");
-			System.out.print("黒（先手）：" + BLACK + "、白（後手）：" + WHITE + ">");
+			System.out.print("黒(先手):" + Board.BLACK + "、白(後手):" + Board.WHITE + ">");
 			playerStone = inputNumber();
-		} while (playerStone != BLACK && playerStone != WHITE);
+		} while (playerStone != Board.BLACK && playerStone != Board.WHITE);
 
 		enemyStone = playerStone * -1;
 
 		do {
 			System.out.println("COMの強さを選択して下さい。");
-			System.out.print("レベル1：1、レベル2：2>");
+			System.out.print("レベル1:1、レベル2:2>");
 			enemyLevel = inputNumber();
 		} while (enemyLevel != 1 && enemyLevel != 2);
 	}
@@ -68,19 +69,16 @@ public class Cgame extends Game {
 					// Y座標とX座標の2回入力させる
 					for (loop = 0; loop < moveSquare.length; loop++) {
 						do {
-							System.out.print((loop == 0)
-									? "行（Y座標）>"
-									: "列（X座標）>");
+							System.out.print((loop == 0) ? "行(Y座標)>" : "列(X座標)>");
 							moveSquare[loop] = inputNumber();
 
 							if (moveSquare[loop] == -1) {
-								System.out.print("投了しますか?\nYES：1、NO：-1>");
+								System.out.print("投了しますか?\nYES:1、NO:-1>");
 
 								if (inputNumber() == 1) {
 									return LOSE; // 投了したらそこで終了
 								}
-							} else if (!(moveSquare[loop] >= 1 &&
-									moveSquare[loop] <= 8)) {
+							} else if (!(moveSquare[loop] >= 1 && moveSquare[loop] <= 8)) {
 								System.out.println("範囲外の値です。");
 							}
 						} while (moveSquare[loop] < 1 || moveSquare[loop] > 8);
@@ -89,9 +87,7 @@ public class Cgame extends Game {
 					do {
 						// 有効マスに入力したマスが含まれているか
 						for (loop = 0; loop < cboard.getMovable().size(); loop++) {
-							if (Arrays.equals(
-									moveSquare,
-									cboard.getMovable().get(loop))) {
+							if (Arrays.equals(moveSquare, cboard.getMovable().get(loop))) {
 								// 石を打って手番終了
 								cboard.reverseStone(moveSquare, playerStone);
 								isThinking = false;
@@ -105,9 +101,7 @@ public class Cgame extends Game {
 					} while (isThinking);
 				} else {
 					System.out.println("相手の番です。");
-					cboard.reverseStone((enemyLevel == 1)
-							? level1()
-							: level2(), enemyStone);
+					cboard.reverseStone((enemyLevel == 1) ? level1() : level2(), enemyStone);
 
 					try { // 2秒待つ
 						Thread.sleep(2000);
@@ -118,9 +112,7 @@ public class Cgame extends Game {
 
 				turns++;
 			} else {
-				System.out.println((++passCount < 2)
-						? "打てる手が無いのでパスします。"
-						: "お互いに打てる手が無くなりました。");
+				System.out.println((++passCount < 2) ? "打てる手が無いのでパスします。" : "お互いに打てる手が無くなりました。");
 			}
 
 			currentTurn *= -1; // 相手に手番を回す
@@ -146,14 +138,15 @@ public class Cgame extends Game {
 	 */
 	@Override
 	protected int[] level2() {
-		//		最も評価値の高い有効マスの座標（まず1番目を代入）
+		// 最も評価値の高い有効マスの座標（まず1番目を代入）
 		maxValue = 0;
 
-		//		2番目から繰り返し始める
+		// 2番目から繰り返し始める
 		for (loop = 1; loop < cboard.getMovable().size(); loop++) {
-			//			現在のマスが前のマスより評価値が高ければ更新
-			if (VALUE[cboard.getMovable().get(loop)[0] - 1][cboard.getMovable().get(loop)[1]
-					- 1] > VALUE[cboard.getMovable().get(maxValue)[0] - 1][cboard.getMovable().get(maxValue)[1] - 1]) {
+			// 現在のマスが前のマスより評価値が高ければ更新
+			if (Board.VALUE[cboard.getMovable().get(loop)[0] - 1][cboard.getMovable().get(loop)[1]
+					- 1] > Board.VALUE[cboard.getMovable().get(maxValue)[0] - 1][cboard.getMovable().get(maxValue)[1]
+							- 1]) {
 				maxValue = loop;
 			}
 		}
@@ -172,11 +165,11 @@ public class Cgame extends Game {
 		cboard.drawBoard();
 
 		if (cboard.getBlackCount() > cboard.getWhiteCount()) {
-			//			黒の方が多く、プレイヤーが黒なら勝ち、白なら負け
-			return (playerStone == BLACK ? WIN : LOSE);
+			// 黒の方が多く、プレイヤーが黒なら勝ち、白なら負け
+			return (playerStone == Board.BLACK ? WIN : LOSE);
 		} else if (cboard.getBlackCount() < cboard.getWhiteCount()) {
-			//			白の方が多く、プレイヤーが白なら勝ち、黒なら負け
-			return (playerStone == WHITE ? WIN : LOSE);
+			// 白の方が多く、プレイヤーが白なら勝ち、黒なら負け
+			return (playerStone == Board.WHITE ? WIN : LOSE);
 		} else {
 			return DRAW; // 白黒同数なら引き分け
 		}
