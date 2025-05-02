@@ -65,28 +65,28 @@ public class Cgame extends Game {
 
 					isThinking = true;
 
-					do {
-						// Y座標とX座標の2回入力させる
-						for (loop = 0; loop < moveSquare.length; loop++) {
-							do {
-								System.out.print((loop == 0)
-										? "行（Y座標）>"
-										: "列（X座標）>");
-								moveSquare[loop] = inputNumber();
+					// Y座標とX座標の2回入力させる
+					for (loop = 0; loop < moveSquare.length; loop++) {
+						do {
+							System.out.print((loop == 0)
+									? "行（Y座標）>"
+									: "列（X座標）>");
+							moveSquare[loop] = inputNumber();
 
-								if (moveSquare[loop] == -1) {
-									System.out.print("投了しますか?\nYES：1、NO：-1>");
+							if (moveSquare[loop] == -1) {
+								System.out.print("投了しますか?\nYES：1、NO：-1>");
 
-									if (inputNumber() == 1) {
-										return LOSE; // 投了したらそこで終了
-									}
-								} else if (!(moveSquare[loop] >= 1 &&
-										moveSquare[loop] <= 8)) {
-									System.out.println("範囲外の値です。");
+								if (inputNumber() == 1) {
+									return LOSE; // 投了したらそこで終了
 								}
-							} while (moveSquare[loop] < 1 || moveSquare[loop] > 8);
-						}
+							} else if (!(moveSquare[loop] >= 1 &&
+									moveSquare[loop] <= 8)) {
+								System.out.println("範囲外の値です。");
+							}
+						} while (moveSquare[loop] < 1 || moveSquare[loop] > 8);
+					}
 
+					do {
 						// 有効マスに入力したマスが含まれているか
 						for (loop = 0; loop < cboard.getMovable().size(); loop++) {
 							if (Arrays.equals(
