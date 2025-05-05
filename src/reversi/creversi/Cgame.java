@@ -9,10 +9,12 @@ import reversi.Board;
 import reversi.Game;
 
 public class Cgame extends Game {
-	private boolean isThinking; // プレイヤーの入力中であることを表す
+	// プレイヤーの入力中であることを表す
+	private boolean isThinking;
 
+	// プレイヤーが入力した値
+	int choice;
 	BufferedReader playerInput = new BufferedReader(new InputStreamReader(System.in));
-	int choice; // プレイヤーが入力した値
 
 	Cboard cboard = new Cboard();
 
@@ -52,11 +54,13 @@ public class Cgame extends Game {
 		turns = 0;
 		passCount = 0;
 
-		while (turns < 60 && passCount < 2) { // 打てるマスが無くなるまで対局を続ける
+		// 打てるマスが無くなるまで対局を続ける
+		while (turns < 60 && passCount < 2) {
 			cboard.drawBoard();
 			cboard.checkSquares(currentTurn);
 
-			if (cboard.getMovable().size() > 0) { // 打てるマスがあれば手番を回す
+			// 打てるマスがあれば手番を回す
+			if (cboard.getMovable().size() > 0) {
 				passCount = 0; // 連続パス回数をリセット
 
 				if (currentTurn == playerStone) {
@@ -76,7 +80,8 @@ public class Cgame extends Game {
 								System.out.print("投了しますか?\nYES:1、NO:-1>");
 
 								if (inputNumber() == 1) {
-									return LOSE; // 投了したらそこで終了
+									// 投了したらそこで終了
+									return LOSE;
 								}
 							} else if (!(moveSquare[loop] >= 1 && moveSquare[loop] <= 8)) {
 								System.out.println("範囲外の値です。");
@@ -103,7 +108,8 @@ public class Cgame extends Game {
 					System.out.println("相手の番です。");
 					cboard.reverseStone((enemyLevel == 1) ? level1() : level2(), enemyStone);
 
-					try { // 2秒待つ
+					try {
+						// 2秒待つ
 						Thread.sleep(2000);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
@@ -115,7 +121,8 @@ public class Cgame extends Game {
 				System.out.println((++passCount < 2) ? "打てる手が無いのでパスします。" : "お互いに打てる手が無くなりました。");
 			}
 
-			currentTurn *= -1; // 相手に手番を回す
+			// 相手に手番を回す
+			currentTurn *= -1;
 		}
 
 		return gameOver();
@@ -171,7 +178,8 @@ public class Cgame extends Game {
 			// 白の方が多く、プレイヤーが白なら勝ち、黒なら負け
 			return (playerStone == Board.WHITE ? WIN : LOSE);
 		} else {
-			return DRAW; // 白黒同数なら引き分け
+			// 白黒同数なら引き分け
+			return DRAW;
 		}
 
 	}

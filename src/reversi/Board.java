@@ -7,26 +7,27 @@ import java.util.List;
 public abstract class Board {
 	// 盤の状態（外側（[0]と[9]）は番兵）
 	protected int[][] boardStatus = new int[10][10];
-
 	// それぞれの石の数
 	protected int blackCount, whiteCount;
-
 	// マスを調べる際のループ用変数
 	protected int y, x, nextY, nextX, furtherY, furtherX, previousY, previousX;
-
 	// 石を打てるマスの座標
 	protected int[] coordinate = new int[2];
-
 	// 石を打てるマスの座標一覧
 	protected List<int[]> movable = new ArrayList<int[]>();
-
 	// マスの状態を表す
 	public static final int BLACK = 1, WHITE = BLACK * -1, SPACE = 0, WALL = 9;
-
 	// マスの評価値（COMレベル2が使用）
-	public static final int[][] VALUE = { { 45, -11, 4, -1, -1, 4, -11, 45 }, { -11, -16, 1, -3, -3, -1, -16, -11 },
-			{ 4, -1, 2, -1, -1, 2, -1, 4 }, { -1, -3, -1, 0, 0, -1, -3, -1 }, { -1, -3, -1, 0, 0, -1, -3, -1 },
-			{ 4, -1, 2, -1, -1, 2, -1, 4 }, { -11, -16, 1, -3, -3, -1, -16, -11 }, { 45, -11, 4, -1, -1, 4, -11, 45 } };
+	public static final int[][] VALUE = {
+			{ 45, -11, 4, -1, -1, 4, -11, 45 },
+			{ -11, -16, 1, -3, -3, -1, -16, -11 },
+			{ 4, -1, 2, -1, -1, 2, -1, 4 },
+			{ -1, -3, -1, 0, 0, -1, -3, -1 },
+			{ -1, -3, -1, 0, 0, -1, -3, -1 },
+			{ 4, -1, 2, -1, -1, 2, -1, 4 },
+			{ -11, -16, 1, -3, -3, -1, -16, -11 },
+			{ 45, -11, 4, -1, -1, 4, -11, 45 }
+	};
 
 	// 外側を壁（番兵）、それ以外を全て空白にする
 	protected Board() {
@@ -151,11 +152,13 @@ public abstract class Board {
 	public void reverseStone(int[] moveSquare, int currentTurn) {
 		for (nextY = -1; nextY <= 1; nextY++) {
 			for (nextX = -1; nextX <= 1; nextX++) {
-				if (boardStatus[moveSquare[0] + nextY][moveSquare[1] + nextX] == currentTurn * -1) { // 打ったマスの隣が相手の石か調べる
+				// 打ったマスの隣が相手の石か調べる
+				if (boardStatus[moveSquare[0] + nextY][moveSquare[1] + nextX] == currentTurn * -1) {
 					furtherY = (moveSquare[0] + nextY);
 					furtherX = (moveSquare[1] + nextX);
 
-					while (true) { // 相手の石の更に先を調べる
+					while (true) {
+						// 相手の石の更に先を調べる
 						furtherY += nextY;
 						furtherX += nextX;
 
@@ -164,8 +167,8 @@ public abstract class Board {
 							previousY = furtherY;
 							previousX = furtherX;
 
-							do { // 相手の石を自分に石に変えていく
-									// 来た方向を逆戻りする
+							do {
+								// 来た方向を逆戻りする
 								previousY += nextY * -1;
 								previousX += nextX * -1;
 
