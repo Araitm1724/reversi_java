@@ -1,8 +1,6 @@
 package reversi.greversi;
 
-import java.awt.BorderLayout;
-import java.awt.Container;
-
+import java.awt.*;
 import javax.swing.ButtonGroup;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -11,9 +9,14 @@ import javax.swing.JRadioButton;
 
 public class Window extends JFrame {
 	Window() {
+		// スクリーンサイズを取得
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		int windowWidth = (int) (screenSize.getWidth() * 0.8);
+		int windowHeight = (int) (screenSize.getHeight() * 0.8);
+
 		// メインフレームの設定
 		setTitle("Reversi");
-		setBounds(50, 50, 1200, 675);
+		setBounds(50, 50, windowWidth, windowHeight);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		// 先後選択ラジオボタンの設定
