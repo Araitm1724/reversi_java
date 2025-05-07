@@ -23,7 +23,7 @@ public class Cgame extends Game {
 	 * 
 	 * @throws IOException
 	 */
-	void start() throws IOException {
+	void start() {
 		do {
 			System.out.println("石の色を選んで下さい。");
 			System.out.print("黒(先手):" + Board.BLACK + "、白(後手):" + Board.WHITE + ">");
@@ -46,7 +46,7 @@ public class Cgame extends Game {
 	 * @throws IOException
 	 */
 	@Override
-	protected int playGame() throws IOException {
+	protected int playGame() {
 		System.out.println("対局開始");
 
 		cboard = new Cboard();
@@ -69,31 +69,30 @@ public class Cgame extends Game {
 					System.out.println("投了（降参）したい場合は-1を入力して下さい。");
 
 					isThinking = true;
-					
+
 					do {
 						// Y座標とX座標の2回入力させる
-						for (loop = 0; loop < moveSquare.length; loop++) {
+						for (int i = 0; i < moveSquare.length; i++) {
 							do {
-								System.out.print((loop == 0) ? "行(Y座標)>" : "列(X座標)>");
-								moveSquare[loop] = inputNumber();
+								System.out.print((i == 0) ? "行(Y座標)>" : "列(X座標)>");
+								moveSquare[i] = inputNumber();
 
-								if (moveSquare[loop] == -1) {
+								if (moveSquare[i] == -1) {
 									System.out.print("投了しますか?\nYES:1、NO:-1>");
 
 									if (inputNumber() == 1) {
 										// 投了したらそこで終了
 										return LOSE;
 									}
-								} else if (!(moveSquare[loop] >= 1 && moveSquare[loop] <= 8)) {
+								} else if (moveSquare[i] < 1 || moveSquare[i] > 8) {
 									System.out.println("範囲外の値です。");
 								}
-							} while (moveSquare[loop] < 1 || moveSquare[loop] > 8);
+							} while (moveSquare[i] < 1 || moveSquare[i] > 8);
 						}
 
-					
 						// 有効マスに入力したマスが含まれているか
-						for (loop = 0; loop < cboard.getMovable().size(); loop++) {
-							if (Arrays.equals(moveSquare, cboard.getMovable().get(loop))) {
+						for (int[] i : cboard.getMovable()) {
+							if (Arrays.equals(moveSquare, i)) {
 								// 石を打って手番終了
 								cboard.reverseStone(moveSquare, playerStone);
 								isThinking = false;
@@ -150,12 +149,12 @@ public class Cgame extends Game {
 		maxValue = 0;
 
 		// 2番目から繰り返し始める
-		for (loop = 1; loop < cboard.getMovable().size(); loop++) {
+		for (int i = 1; i < cboard.getMovable().size(); i++) {
 			// 現在のマスが前のマスより評価値が高ければ更新
-			if (Board.VALUE[cboard.getMovable().get(loop)[0] - 1][cboard.getMovable().get(loop)[1]
+			if (Board.VALUE[cboard.getMovable().get(i)[0] - 1][cboard.getMovable().get(i)[1]
 					- 1] > Board.VALUE[cboard.getMovable().get(maxValue)[0] - 1][cboard.getMovable().get(maxValue)[1]
 							- 1]) {
-				maxValue = loop;
+				maxValue = i;
 			}
 		}
 
@@ -189,14 +188,13 @@ public class Cgame extends Game {
 	 * プレイヤーのコマンド選択と着手
 	 * 
 	 * @return 入力した数値
-	 * @throws IOException
 	 */
-	int inputNumber() throws IOException {
+	int inputNumber() {
 		choice = 0;
 
 		try {
 			choice = Integer.parseInt(playerInput.readLine());
-		} catch (NumberFormatException e) {
+		} catch (IOException | NumberFormatException e) {
 			System.out.println("数値を入力して下さい。");
 		}
 

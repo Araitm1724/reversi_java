@@ -3,8 +3,6 @@ package reversi;
 import java.io.IOException;
 
 public abstract class Game {
-	// ループ用変数
-	protected int loop;
 	// プレイヤーとCOMの石の色
 	protected int playerStone, enemyStone;
 	// COMのレベル
@@ -28,7 +26,7 @@ public abstract class Game {
 	 * @return 勝敗
 	 * @throws IOException
 	 */
-	protected abstract int playGame() throws IOException;
+	protected abstract int playGame();
 
 	/**
 	 * COMレベル1の思考

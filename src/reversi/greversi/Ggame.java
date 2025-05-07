@@ -1,13 +1,11 @@
 package reversi.greversi;
 
-import java.io.IOException;
-
 import reversi.Game;
 
 public class Ggame extends Game {
 
 	@Override
-	protected int playGame() throws IOException {
+	protected int playGame() {
 		// TODO 自動生成されたメソッド・スタブ
 		return 0;
 	}

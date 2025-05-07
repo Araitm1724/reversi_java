@@ -1,12 +1,10 @@
 package reversi.creversi;
 
-import java.io.IOException;
-
 import reversi.Game;
 
 public class Creversi {
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 		int outcome, retry;
 
 		Cgame cgame = new Cgame();
