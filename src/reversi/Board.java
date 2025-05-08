@@ -4,47 +4,34 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class Board {
+public class Board implements DisplayBoard {
 	// 盤の状態（外側（[0]と[9]）は番兵）
-	protected int[][] boardStatus = new int[10][10];
+	protected int[][] bStatus = new int[10][10];
 	// それぞれの石の数
-	protected int blackCount, whiteCount;
+	protected int bCount, wCount;
 	// マスを調べる際のループ用変数
 	protected int y, x, nextY, nextX, furtherY, furtherX, previousY, previousX;
 	// 石を打てるマスの座標
 	protected int[] coordinate = new int[2];
 	// 石を打てるマスの座標一覧
 	protected List<int[]> movable = new ArrayList<int[]>();
-	// マスの状態を表す
-	public static final int BLACK = 1, WHITE = BLACK * -1, SPACE = 0, WALL = 9;
-	// マスの評価値（COMレベル2が使用）
-	public static final int[][] VALUE = {
-			{ 45, -11, 4, -1, -1, 4, -11, 45 },
-			{ -11, -16, 1, -3, -3, -1, -16, -11 },
-			{ 4, -1, 2, -1, -1, 2, -1, 4 },
-			{ -1, -3, -1, 0, 0, -1, -3, -1 },
-			{ -1, -3, -1, 0, 0, -1, -3, -1 },
-			{ 4, -1, 2, -1, -1, 2, -1, 4 },
-			{ -11, -16, 1, -3, -3, -1, -16, -11 },
-			{ 45, -11, 4, -1, -1, 4, -11, 45 }
-	};
 
-	// 外側を壁（番兵）、それ以外を全て空白にする
-	protected Board() {
-		for (y = 0; y < boardStatus.length; y++) {
-			for (x = 0; x < boardStatus[0].length; x++) {
-				boardStatus[y][x] = (y == 0 || x == 0 || y == 10 || x == 10) ? WALL : SPACE;
+	public Board() {
+		// 外側を壁（番兵）、それ以外を全て空白にする
+		for (y = 0; y < bStatus.length; y++) {
+			for (x = 0; x < bStatus[0].length; x++) {
+				bStatus[y][x] = (y == 0 || x == 0 || y == 10 || x == 10) ? WALL : SPACE;
 			}
 		}
 
 		// 中央に石を配置
-		boardStatus[4][5] = BLACK;
-		boardStatus[5][4] = BLACK;
-		boardStatus[4][4] = WHITE;
-		boardStatus[5][5] = WHITE;
+		bStatus[4][5] = BLACK;
+		bStatus[5][4] = BLACK;
+		bStatus[4][4] = WHITE;
+		bStatus[5][5] = WHITE;
 
-		blackCount = 2;
-		whiteCount = 2;
+		bCount = 2;
+		wCount = 2;
 	}
 
 	/**
@@ -52,8 +39,8 @@ public abstract class Board {
 	 * 
 	 * @return 黒石の数
 	 */
-	public int getBlackCount() {
-		return blackCount;
+	public int getBCount() {
+		return bCount;
 	}
 
 	/**
@@ -61,8 +48,8 @@ public abstract class Board {
 	 * 
 	 * @return 白石の数
 	 */
-	public int getWhiteCount() {
-		return whiteCount;
+	public int getWCount() {
+		return wCount;
 	}
 
 	/**
@@ -74,24 +61,46 @@ public abstract class Board {
 		return movable;
 	}
 
-	/**
-	 * 現在の盤の状態を描画する
-	 */
-	protected abstract void drawBoard();
+	@Override
+	public void drawBoard() {
+		System.out.println("  １ ２ ３ ４ ５ ６ ７ ８");
+
+		for (y = 1; y <= 8; y++) {
+			System.out.println(" +ー+ー+ー+ー+ー+ー+ー+ー+");
+			System.out.print(y);
+
+			for (x = 1; x <= 8; x++) {
+				switch (bStatus[y][x]) {
+				case SPACE -> System.out.print("|" + squareStatus[0]);
+				case BLACK -> System.out.print("|" + squareStatus[1]);
+				case WHITE -> System.out.print("|" + squareStatus[2]);
+				default -> throw new IllegalArgumentException(
+						"Unexpected value: " + bStatus[y][x]);
+				}
+			}
+
+			System.out.println("|");
+		}
+
+		System.out.println(" +ー+ー+ー+ー+ー+ー+ー+ー+");
+
+		countStones();
+		System.out.println("黒：" + bCount + " 白：" + wCount);
+	}
 
 	/**
-	 * 石を数えて表示する
+	 * 石を数える
 	 */
 	protected void countStones() {
-		blackCount = 0;
-		whiteCount = 0;
+		bCount = 0;
+		wCount = 0;
 
 		for (y = 1; y <= 8; y++) {
 			for (x = 1; x <= 8; x++) {
-				if (boardStatus[y][x] == BLACK) {
-					blackCount++;
-				} else if (boardStatus[y][x] == WHITE) {
-					whiteCount++;
+				if (bStatus[y][x] == BLACK) {
+					bCount++;
+				} else if (bStatus[y][x] == WHITE) {
+					wCount++;
 				}
 			}
 		}
@@ -108,11 +117,11 @@ public abstract class Board {
 		for (y = 1; y <= 8; y++) {
 			for (x = 1; x <= 8; x++) {
 				// 空白マスを探す
-				if (boardStatus[y][x] == SPACE) {
+				if (bStatus[y][x] == SPACE) {
 					for (nextY = -1; nextY <= 1; nextY++) {
 						for (nextX = -1; nextX <= 1; nextX++) {
 							// 空白マスの隣が相手の石か調べる
-							if (boardStatus[y + nextY][x + nextX] == currentTurn * -1) {
+							if (bStatus[y + nextY][x + nextX] == currentTurn * -1) {
 								furtherY = (y + nextY);
 								furtherX = (x + nextX);
 
@@ -122,15 +131,16 @@ public abstract class Board {
 									furtherX += nextX;
 
 									// 自分の石か調べる
-									if (boardStatus[furtherY][furtherX] == currentTurn) {
+									if (bStatus[furtherY][furtherX] == currentTurn) {
 										// 起点の空白マスを有効マスとして登録
 										coordinate[0] = y;
 										coordinate[1] = x;
-										movable.add(Arrays.copyOf(coordinate, coordinate.length));
+										movable.add(Arrays.copyOf(
+												coordinate, coordinate.length));
 
 										break;
-									} else if (boardStatus[furtherY][furtherX] == SPACE
-											|| boardStatus[furtherY][furtherX] == WALL) {
+									} else if (bStatus[furtherY][furtherX] == SPACE
+											|| bStatus[furtherY][furtherX] == WALL) {
 										// 空白マスか壁に当たればその方向はハズレ
 										break;
 									}
@@ -149,11 +159,12 @@ public abstract class Board {
 	 * @param moveSquare  石を打ったマスの座標
 	 * @param currentTurn 現在の手番（石の色）
 	 */
-	public void reverseStone(int[] moveSquare, int currentTurn) {
+	public void reverseStones(int[] moveSquare, int currentTurn) {
 		for (nextY = -1; nextY <= 1; nextY++) {
 			for (nextX = -1; nextX <= 1; nextX++) {
 				// 打ったマスの隣が相手の石か調べる
-				if (boardStatus[moveSquare[0] + nextY][moveSquare[1] + nextX] == currentTurn * -1) {
+				if (bStatus[moveSquare[0] + nextY][moveSquare[1]
+						+ nextX] == currentTurn * -1) {
 					furtherY = (moveSquare[0] + nextY);
 					furtherX = (moveSquare[1] + nextX);
 
@@ -163,7 +174,7 @@ public abstract class Board {
 						furtherX += nextX;
 
 						// 自分の石か調べる
-						if (boardStatus[furtherY][furtherX] == currentTurn) {
+						if (bStatus[furtherY][furtherX] == currentTurn) {
 							previousY = furtherY;
 							previousX = furtherX;
 
@@ -172,12 +183,13 @@ public abstract class Board {
 								previousY += nextY * -1;
 								previousX += nextX * -1;
 
-								boardStatus[previousY][previousX] = currentTurn;
-							} while (previousY != moveSquare[0] || previousX != moveSquare[1]);
+								bStatus[previousY][previousX] = currentTurn;
+							} while (previousY != moveSquare[0]
+									|| previousX != moveSquare[1]);
 
 							break;
-						} else if (boardStatus[furtherY][furtherX] == SPACE
-								|| boardStatus[furtherY][furtherX] == WALL) {
+						} else if (bStatus[furtherY][furtherX] == SPACE
+								|| bStatus[furtherY][furtherX] == WALL) {
 							// 空白マスか壁に当たればその方向はハズレ
 							break;
 						}

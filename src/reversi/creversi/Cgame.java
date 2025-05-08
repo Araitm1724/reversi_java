@@ -6,107 +6,94 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 
 import reversi.Board;
-import reversi.Game;
+import reversi.Enemy;
+import reversi.EnemyLevel2;
 
-public class Cgame extends Game {
-	// プレイヤーの入力中であることを表す
-	private boolean isThinking;
-
+public class Cgame {
+	// プレイヤーとCOMの石の色
+	protected int myStone, enemyStone;
+	// COMのレベル
+	protected int level;
+	// 現在の手番（石の色）
+	protected int currentTurn;
+	// 総手数
+	protected int turns;
+	// プレイヤーが打った（入力した）マスの座標
+	protected int[] moveSquare = new int[2];
+	// どこにも打てないときに加算する（2以上になったら終局）
+	protected int pass;
+	// 勝敗
+	public static final int WIN = 1, LOSE = -1, DRAW = 0;
 	// プレイヤーが入力した値
-	int choice;
-	BufferedReader playerInput = new BufferedReader(new InputStreamReader(System.in));
-
-	Cboard cboard = new Cboard();
+	int choice = 0;
+	BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+	// プレイヤーの入力中であることを表す
+	private boolean isThinking = false;
+	// 盤の情報
+	Board board;
+	// COM
+	Enemy enemy;
 
 	/**
-	 * 対局設定の選択
-	 * 
-	 * @throws IOException
+	 * 石の色（先後）を選択
 	 */
-	void start() {
+	protected void selectStone() {
 		do {
-			System.out.println("石の色を選んで下さい。");
-			System.out.print("黒(先手):" + Board.BLACK + "、白(後手):" + Board.WHITE + ">");
-			playerStone = inputNumber();
-		} while (playerStone != Board.BLACK && playerStone != Board.WHITE);
+			System.out.println("石の色(先後)を選んで下さい。");
+			System.out.print("黒:" + Board.BLACK + "、白:" + Board.WHITE + ">");
+			myStone = playerInput();
+		} while (myStone != Board.BLACK && myStone != Board.WHITE);
 
-		enemyStone = playerStone * -1;
+		enemyStone = myStone * -1;
+	}
 
+	/**
+	 * COMのレベルを選択
+	 */
+	protected void selectLevel() {
 		do {
 			System.out.println("COMの強さを選択して下さい。");
 			System.out.print("レベル1:1、レベル2:2>");
-			enemyLevel = inputNumber();
-		} while (enemyLevel != 1 && enemyLevel != 2);
+			level = playerInput();
+		} while (level != 1 && level != 2);
+
+		// 選択したレベルのCOMを呼び出す
+		enemy = (level == 1) ? new Enemy() : new EnemyLevel2();
 	}
 
 	/**
 	 * 対局
 	 * 
 	 * @return 勝敗
-	 * @throws IOException
 	 */
-	@Override
 	protected int playGame() {
+		selectStone();
+		selectLevel();
+
 		System.out.println("対局開始");
 
-		cboard = new Cboard();
+		board = new Board();
 		currentTurn = 1;
 		turns = 0;
-		passCount = 0;
+		pass = 0;
 
 		// 打てるマスが無くなるまで対局を続ける
-		while (turns < 60 && passCount < 2) {
-			cboard.drawBoard();
-			cboard.checkSquares(currentTurn);
+		while (turns < 60 && pass < 2) {
+			board.drawBoard();
+			board.checkSquares(currentTurn);
 
 			// 打てるマスがあれば手番を回す
-			if (cboard.getMovable().size() > 0) {
-				passCount = 0; // 連続パス回数をリセット
+			if (board.getMovable().size() > 0) {
+				pass = 0; // 連続パス回数をリセット
 
-				if (currentTurn == playerStone) {
-					System.out.println("貴方の番です。");
-					System.out.println("打ちたいマスの座標を順番に入力して下さい。");
-					System.out.println("投了（降参）したい場合は-1を入力して下さい。");
-
-					isThinking = true;
-
-					do {
-						// Y座標とX座標の2回入力させる
-						for (int i = 0; i < moveSquare.length; i++) {
-							do {
-								System.out.print((i == 0) ? "行(Y座標)>" : "列(X座標)>");
-								moveSquare[i] = inputNumber();
-
-								if (moveSquare[i] == -1) {
-									System.out.print("投了しますか?\nYES:1、NO:-1>");
-
-									if (inputNumber() == 1) {
-										// 投了したらそこで終了
-										return LOSE;
-									}
-								} else if (moveSquare[i] < 1 || moveSquare[i] > 8) {
-									System.out.println("範囲外の値です。");
-								}
-							} while (moveSquare[i] < 1 || moveSquare[i] > 8);
-						}
-
-						// 有効マスに入力したマスが含まれているか
-						for (int[] i : cboard.getMovable()) {
-							if (Arrays.equals(moveSquare, i)) {
-								// 石を打って手番終了
-								cboard.reverseStone(moveSquare, playerStone);
-								isThinking = false;
-								break;
-							}
-						}
-
-						if (isThinking) {
-							System.out.println("そこには打てません。");
-						}
-					} while (isThinking);
+				if (currentTurn == myStone) {
+					// 投了したかを判定
+					if (playerMove()) {
+						return LOSE;
+					}
 				} else {
 					System.out.println("相手の番です。");
-					cboard.reverseStone((enemyLevel == 1) ? level1() : level2(), enemyStone);
+					board.reverseStones(enemy.enemyMove(board.getMovable()), enemyStone);
 
 					try {
 						// 2秒待つ
@@ -118,7 +105,9 @@ public class Cgame extends Game {
 
 				turns++;
 			} else {
-				System.out.println((++passCount < 2) ? "打てる手が無いのでパスします。" : "お互いに打てる手が無くなりました。");
+				System.out.println((++pass < 2)
+						? "打てる手が無いのでパスします。"
+						: "お互いに打てる手が無くなりました。");
 			}
 
 			// 相手に手番を回す
@@ -129,36 +118,53 @@ public class Cgame extends Game {
 	}
 
 	/**
-	 * COMレベル1の思考
+	 * プレイヤーの手番
 	 * 
-	 * @return 石を打つマスの座標
+	 * @return 投了したか
 	 */
-	@Override
-	protected int[] level1() {
-		return cboard.getMovable().get((int) (Math.random() * cboard.getMovable().size()));
-	}
+	protected boolean playerMove() {
+		System.out.println("貴方の番です。");
+		System.out.println("打ちたいマスの座標を順番に入力して下さい。");
+		System.out.println("投了（降参）したい場合は-1を入力して下さい。");
 
-	/**
-	 * COMレベル2の思考
-	 * 
-	 * @return 石を打つマスの座標
-	 */
-	@Override
-	protected int[] level2() {
-		// 最も評価値の高い有効マスの座標（まず1番目を代入）
-		maxValue = 0;
+		isThinking = true;
 
-		// 2番目から繰り返し始める
-		for (int i = 1; i < cboard.getMovable().size(); i++) {
-			// 現在のマスが前のマスより評価値が高ければ更新
-			if (Board.VALUE[cboard.getMovable().get(i)[0] - 1][cboard.getMovable().get(i)[1]
-					- 1] > Board.VALUE[cboard.getMovable().get(maxValue)[0] - 1][cboard.getMovable().get(maxValue)[1]
-							- 1]) {
-				maxValue = i;
+		do {
+			// Y座標とX座標の2回入力させる
+			for (int i = 0; i < moveSquare.length; i++) {
+				do {
+					System.out.print((i == 0) ? "行(Y座標)>" : "列(X座標)>");
+					moveSquare[i] = playerInput();
+
+					if (moveSquare[i] == -1) {
+						System.out.print("投了しますか?\nYES:1、NO:-1>");
+
+						if (playerInput() == 1) {
+							// 投了したらそこで終了
+							return true;
+						}
+					} else if (moveSquare[i] < 1 || moveSquare[i] > 8) {
+						System.out.println("範囲外の値です。");
+					}
+				} while (moveSquare[i] < 1 || moveSquare[i] > 8);
 			}
-		}
 
-		return cboard.getMovable().get(maxValue);
+			// 有効マスに入力したマスが含まれているか
+			for (int[] i : board.getMovable()) {
+				if (Arrays.equals(moveSquare, i)) {
+					// 石を打って手番終了
+					board.reverseStones(moveSquare, myStone);
+					isThinking = false;
+					break;
+				}
+			}
+
+			if (isThinking) {
+				System.out.println("そこには打てません。");
+			}
+		} while (isThinking);
+
+		return false;
 	}
 
 	/**
@@ -166,34 +172,32 @@ public class Cgame extends Game {
 	 * 
 	 * @return 勝敗
 	 */
-	@Override
 	protected int gameOver() {
 		System.out.println("終局");
-		cboard.drawBoard();
+		board.drawBoard();
 
-		if (cboard.getBlackCount() > cboard.getWhiteCount()) {
+		if (board.getBCount() > board.getWCount()) {
 			// 黒の方が多く、プレイヤーが黒なら勝ち、白なら負け
-			return (playerStone == Board.BLACK ? WIN : LOSE);
-		} else if (cboard.getBlackCount() < cboard.getWhiteCount()) {
+			return (myStone == Board.BLACK ? WIN : LOSE);
+		} else if (board.getBCount() < board.getWCount()) {
 			// 白の方が多く、プレイヤーが白なら勝ち、黒なら負け
-			return (playerStone == Board.WHITE ? WIN : LOSE);
+			return (myStone == Board.WHITE ? WIN : LOSE);
 		} else {
 			// 白黒同数なら引き分け
 			return DRAW;
 		}
-
 	}
 
 	/**
 	 * プレイヤーのコマンド選択と着手
 	 * 
-	 * @return 入力した数値
+	 * @return プレイヤーが入力した数値
 	 */
-	int inputNumber() {
+	protected int playerInput() {
 		choice = 0;
 
 		try {
-			choice = Integer.parseInt(playerInput.readLine());
+			choice = Integer.parseInt(reader.readLine());
 		} catch (IOException | NumberFormatException e) {
 			System.out.println("数値を入力して下さい。");
 		}
