@@ -11,10 +11,10 @@ public class Reversi {
 			outcome = cgame.playGame();
 
 			switch (outcome) {
-			case Cgame.WIN -> System.out.println("貴方の勝ち");
-			case Cgame.LOSE -> System.out.println("貴方の負け");
-			case Cgame.DRAW -> System.out.println("引き分け");
-			default -> throw new IllegalArgumentException("Unexpected value: " + outcome);
+				case Cgame.WIN -> System.out.println("貴方の勝ち");
+				case Cgame.LOSE -> System.out.println("貴方の負け");
+				case Cgame.DRAW -> System.out.println("引き分け");
+				default -> throw new IllegalArgumentException("Unexpected value: " + outcome);
 			}
 
 			do {

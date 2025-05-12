@@ -83,7 +83,7 @@ public class Cgame {
 			board.checkSquares(currentTurn);
 
 			// 打てるマスがあれば手番を回す
-			if (board.getMovable().size() > 0) {
+			if (board.getMovable().length > 0) {
 				pass = 0; // 連続パス回数をリセット
 
 				if (currentTurn == myStone) {

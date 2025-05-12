@@ -29,9 +29,6 @@ public class Board implements DisplayBoard {
 		bStatus[5][4] = BLACK;
 		bStatus[4][4] = WHITE;
 		bStatus[5][5] = WHITE;
-
-		bCount = 2;
-		wCount = 2;
 	}
 
 	/**
@@ -57,8 +54,14 @@ public class Board implements DisplayBoard {
 	 * 
 	 * @return 着手可能なマスの一覧
 	 */
-	public List<int[]> getMovable() {
-		return movable;
+	public int[][] getMovable() {
+		int[][] copiedMovable = new int[movable.size()][];
+
+		for (int i = 0; i < movable.size(); i++) {
+			copiedMovable[i] = Arrays.copyOf(movable.get(i), movable.get(i).length);
+		}
+
+		return copiedMovable;
 	}
 
 	@Override
@@ -71,11 +74,11 @@ public class Board implements DisplayBoard {
 
 			for (x = 1; x <= 8; x++) {
 				switch (bStatus[y][x]) {
-				case SPACE -> System.out.print("|" + squareStatus[0]);
-				case BLACK -> System.out.print("|" + squareStatus[1]);
-				case WHITE -> System.out.print("|" + squareStatus[2]);
-				default -> throw new IllegalArgumentException(
-						"Unexpected value: " + bStatus[y][x]);
+					case SPACE -> System.out.print("|" + squareStatus[0]);
+					case BLACK -> System.out.print("|" + squareStatus[1]);
+					case WHITE -> System.out.print("|" + squareStatus[2]);
+					default -> throw new IllegalArgumentException(
+							"Unexpected value: " + bStatus[y][x]);
 				}
 			}
 
@@ -92,8 +95,7 @@ public class Board implements DisplayBoard {
 	 * 石を数える
 	 */
 	protected void countStones() {
-		bCount = 0;
-		wCount = 0;
+		bCount = wCount = 0;
 
 		for (y = 1; y <= 8; y++) {
 			for (x = 1; x <= 8; x++) {
@@ -141,8 +143,7 @@ public class Board implements DisplayBoard {
 										break;
 									} else if (bStatus[furtherY][furtherX] == SPACE
 											|| bStatus[furtherY][furtherX] == WALL) {
-										// 空白マスか壁に当たればその方向はハズレ
-										break;
+										break; // 空白か壁に当たればその方向はハズレ
 									}
 								}
 							}
@@ -190,8 +191,7 @@ public class Board implements DisplayBoard {
 							break;
 						} else if (bStatus[furtherY][furtherX] == SPACE
 								|| bStatus[furtherY][furtherX] == WALL) {
-							// 空白マスか壁に当たればその方向はハズレ
-							break;
+							break; // 空白か壁に当たればその方向はハズレ
 						}
 					}
 				}
