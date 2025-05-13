@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Board implements DisplayBoard {
+public abstract class Board implements DisplayBoard {
 	// 盤の状態（外側（[0]と[9]）は番兵）
 	protected int[][] bStatus = new int[10][10];
 	// それぞれの石の数
@@ -64,33 +64,6 @@ public class Board implements DisplayBoard {
 		return copiedMovable;
 	}
 
-	@Override
-	public void drawBoard() {
-		System.out.println("  １ ２ ３ ４ ５ ６ ７ ８");
-
-		for (y = 1; y <= 8; y++) {
-			System.out.println(" +ー+ー+ー+ー+ー+ー+ー+ー+");
-			System.out.print(y);
-
-			for (x = 1; x <= 8; x++) {
-				switch (bStatus[y][x]) {
-					case SPACE -> System.out.print("|" + squareStatus[0]);
-					case BLACK -> System.out.print("|" + squareStatus[1]);
-					case WHITE -> System.out.print("|" + squareStatus[2]);
-					default -> throw new IllegalArgumentException(
-							"Unexpected value: " + bStatus[y][x]);
-				}
-			}
-
-			System.out.println("|");
-		}
-
-		System.out.println(" +ー+ー+ー+ー+ー+ー+ー+ー+");
-
-		countStones();
-		System.out.println("黒：" + bCount + " 白：" + wCount);
-	}
-
 	/**
 	 * 石を数える
 	 */
@@ -137,8 +110,7 @@ public class Board implements DisplayBoard {
 										// 起点の空白マスを有効マスとして登録
 										coordinate[0] = y;
 										coordinate[1] = x;
-										movable.add(Arrays.copyOf(
-												coordinate, coordinate.length));
+										movable.add(Arrays.copyOf(coordinate, coordinate.length));
 
 										break;
 									} else if (bStatus[furtherY][furtherX] == SPACE
@@ -164,8 +136,7 @@ public class Board implements DisplayBoard {
 		for (nextY = -1; nextY <= 1; nextY++) {
 			for (nextX = -1; nextX <= 1; nextX++) {
 				// 打ったマスの隣が相手の石か調べる
-				if (bStatus[moveSquare[0] + nextY][moveSquare[1]
-						+ nextX] == currentTurn * -1) {
+				if (bStatus[moveSquare[0] + nextY][moveSquare[1] + nextX] == currentTurn * -1) {
 					furtherY = (moveSquare[0] + nextY);
 					furtherX = (moveSquare[1] + nextX);
 
@@ -185,12 +156,10 @@ public class Board implements DisplayBoard {
 								previousX += nextX * -1;
 
 								bStatus[previousY][previousX] = currentTurn;
-							} while (previousY != moveSquare[0]
-									|| previousX != moveSquare[1]);
+							} while (previousY != moveSquare[0] || previousX != moveSquare[1]);
 
 							break;
-						} else if (bStatus[furtherY][furtherX] == SPACE
-								|| bStatus[furtherY][furtherX] == WALL) {
+						} else if (bStatus[furtherY][furtherX] == SPACE || bStatus[furtherY][furtherX] == WALL) {
 							break; // 空白か壁に当たればその方向はハズレ
 						}
 					}
