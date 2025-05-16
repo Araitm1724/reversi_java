@@ -1,8 +1,8 @@
 package reversi.greversi;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.awt.Toolkit;
 
 import javax.swing.JFrame;
@@ -10,13 +10,12 @@ import javax.swing.JFrame;
 public class MainFrame extends JFrame {
 	int screenWidth, screenHeight;
 	Dimension screenSize;
-	BoardPanel boardPanel;
+	GamePanel gamePanel;
 	RightPanels gameSettingsPanel, playingPanel, outcomePanel;
 
 	MainFrame(String title) {
 		setTitle(title);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		setLayout(new GridLayout());
 
 		// ウィンドウサイズ設定
 		screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -24,14 +23,13 @@ public class MainFrame extends JFrame {
 		screenHeight = (int) (screenSize.getHeight() * 0.9);
 		setSize(screenWidth, screenHeight);
 
-		boardPanel = new BoardPanel();
-		boardPanel.setSide((int) (boardPanel.getSize().height * 0.8));
-		add(boardPanel);
+		gamePanel = new GamePanel(screenWidth, screenHeight);
+		add(gamePanel, BorderLayout.WEST);
 
-		gameSettingsPanel = new GameSettingsPanel("対局設定");
-		add(gameSettingsPanel);
+		gameSettingsPanel = new GameSettingsPanel("対局設定", screenWidth, gamePanel.getWidth(), screenHeight);
+		add(gameSettingsPanel, BorderLayout.EAST);
 
-		boardPanel.setBackground(Color.BLACK);
+		//		gamePanel.setBackground(Color.BLACK);
 		gameSettingsPanel.setBackground(Color.GRAY);
 	}
 }
